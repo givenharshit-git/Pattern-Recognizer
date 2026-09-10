@@ -1,11 +1,19 @@
 const D=window.PATTERN_DATA;
 const state=JSON.parse(localStorage.getItem('algopattern-state')||'{"solved":[],"bookmarked":[],"theme":"light"}');
+console.log('Initial state loaded:', state);
+console.log('localStorage available:', typeof localStorage !== 'undefined');
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const techniques=D.techniques;
 const meta=t=>D.metadata[t]||{summary:"",signals:[],complexity:"See individual problems"};
 
-function save(){localStorage.setItem('algopattern-state',JSON.stringify(state));}
+function save(){
+  const stateStr = JSON.stringify(state);
+  console.log('Saving state:', state);
+  localStorage.setItem('algopattern-state', stateStr);
+  const verify = localStorage.getItem('algopattern-state');
+  console.log('Verified saved:', verify === stateStr ? 'SUCCESS' : 'FAILED');
+}
 function problemsFor(t){return D.problems.filter(p=>p.technique===t)}
 function pct(t){let a=problemsFor(t),s=a.filter(p=>state.solved.includes(key(p))).length;return a.length?Math.round(s/a.length*100):0}
 function key(p){return p.id+'|'+p.title}
@@ -35,10 +43,11 @@ function renderPatterns(){
 }
 function problemCard(p){
  const solved=state.solved.includes(key(p)), bm=state.bookmarked.includes(key(p));
+ const titleEsc = esc(p.title).replace(/'/g, "&#39;");
  return `<article class="problem ${solved?'solved':''}">
    <div class="numcode">#${p.id}</div>
    <div><div class="ptitle">${esc(p.title)}</div><div class="pattern">${esc(p.pattern)}</div><div class="chips"><span class="chip">${esc(p.technique)}</span></div></div>
-   <div class="actions">${difficultyBadge(p)}<button class="star ${bm?'on':''}" title="Bookmark" onclick="toggleBookmark(${p.id},${JSON.stringify(p.title)})">★</button><input class="check" type="checkbox" ${solved?'checked':''} title="Mark solved" onchange="toggleSolved(${p.id},${JSON.stringify(p.title)})"><a class="btn" target="_blank" rel="noopener" href="${p.link}">Solve ↗</a></div>
+   <div class="actions">${difficultyBadge(p)}<button class="star ${bm?'on':''}" title="Bookmark" onclick="toggleBookmark(${p.id},'${titleEsc}')">★</button><input class="check" type="checkbox" ${solved?'checked':''} title="Mark solved" onchange="toggleSolved(${p.id},'${titleEsc}')"><a class="btn" target="_blank" rel="noopener" href="${p.link}">Solve ↗</a></div>
  </article>`;
 }
 function renderProblems(){
@@ -74,8 +83,25 @@ function renderProgress(){
 }
 function renderView(v){({dashboard:renderDashboard,patterns:renderPatterns,problems:renderProblems,decision:renderDecision,progress:renderProgress}[v]||renderDashboard)()}
 function openTechnique(t){nav('problems');renderProblems();setTimeout(()=>{let s=$('#techFilter');if(s){s.value=t;s.dispatchEvent(new Event('change'))}},0)}
-function toggleSolved(id,title){let k=id+'|'+title;state.solved=state.solved.includes(k)?state.solved.filter(x=>x!==k):[...state.solved,k];save();renderDashboard();renderProgress();if($('#problems').classList.contains('active'))renderProblems()}
-function toggleBookmark(id,title){let k=id+'|'+title;state.bookmarked=state.bookmarked.includes(k)?state.bookmarked.filter(x=>x!==k):[...state.bookmarked,k];save();renderDashboard();if($('#problems').classList.contains('active'))renderProblems()}
+function toggleSolved(id,title){
+  let k=id+'|'+title;
+  console.log('Toggle solved called for:', k, 'Current state:', state);
+  state.solved=state.solved.includes(k)?state.solved.filter(x=>x!==k):[...state.solved,k];
+  console.log('Updated state.solved:', state.solved);
+  save();
+  renderDashboard();
+  renderProgress();
+  if($('#problems').classList.contains('active'))renderProblems();
+}
+function toggleBookmark(id,title){
+  let k=id+'|'+title;
+  console.log('Toggle bookmark called for:', k);
+  state.bookmarked=state.bookmarked.includes(k)?state.bookmarked.filter(x=>x!==k):[...state.bookmarked,k];
+  console.log('Updated state.bookmarked:', state.bookmarked);
+  save();
+  renderDashboard();
+  if($('#problems').classList.contains('active'))renderProblems();
+}
 $('#globalSearch').addEventListener('input',()=>{if(!$('#problems').classList.contains('active'))nav('problems');renderProblems()});
 $('#themeBtn').addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';document.body.classList.toggle('dark',state.theme==='dark');save()});
 if(state.theme==='dark'){document.body.classList.add('dark');};
