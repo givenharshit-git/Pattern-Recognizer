@@ -26,6 +26,10 @@ body {
     font: 14px Inter, system-ui, sans-serif
 }
 
+body.menu-open {
+    overflow: hidden
+}
+
 .app {
     display: flex;
     min-height: 100vh
@@ -221,6 +225,19 @@ body {
 .mobile-title {
     display: none;
     font-weight: 800;
+    margin-right: auto
+}
+
+.menu-btn {
+    display: none;
+    border: 1px solid var(--line);
+    background: var(--text);
+    color: var(--bg);
+    border-radius: 9px;
+    width: 37px;
+    height: 37px;
+    cursor: pointer;
+    font-size: 18px;
     margin-right: auto
 }
 
@@ -583,16 +600,68 @@ body {
     }
 }
 
+@media(max-width:768px) {
+    .sidebar {
+        width: 180px;
+        padding: 16px 10px
+    }
+
+    .main {
+        margin-left: 180px
+    }
+
+    .topbar {
+        padding: 0 20px;
+        height: 60px
+    }
+
+    .search {
+        width: min(400px, 55%)
+    }
+
+    .view {
+        padding: 22px 20px
+    }
+
+    .grid {
+        grid-template-columns: 1fr
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr
+    }
+
+    .hero h1 {
+        font-size: 28px
+    }
+
+    .problem {
+        grid-template-columns: 50px 1fr;
+        gap: 12px
+    }
+}
+
 @media(max-width:680px) {
     .sidebar {
-        position: static;
+        position: fixed;
         width: 100%;
-        height: auto;
-        min-height: 0
+        height: 100vh;
+        left: -100%;
+        top: 0;
+        z-index: 10;
+        transition: left .3s ease;
+        overflow-y: auto;
+        background: #10111a;
+        padding: 10px;
+    }
+
+    .sidebar.active {
+        left: 0
     }
 
     .app {
-        display: block
+        display: flex;
+        flex-direction: column
     }
 
     .main {
@@ -600,69 +669,350 @@ body {
     }
 
     .sidebar .nav {
-        display: inline-block;
-        width: auto
+        display: block;
+        width: 100%;
+        padding: 12px;
+        font-size: 13px;
+        margin: 3px 0;
     }
 
-    .sidebar {
-        padding: 10px
+    .sidebar .nav span {
+        display: inline
     }
 
     .brand {
-        display: none
+        display: block;
+        padding: 8px 10px 16px
     }
 
-    .side-title,
-    #techNav,
+    .side-title {
+        display: block;
+        padding: 20px 10px 9px
+    }
+
+    #techNav {
+        display: block
+    }
+
     .sidebar-foot {
-        display: none
+        display: block;
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(transparent, #10111a 20%);
+        padding: 15px 10px 5px;
+        border-top: 1px solid #2a2f3f;
+        margin-top: 20px
+    }
+
+    .sidebar-foot span {
+        font-size: 10px
+    }
+
+    .social-links {
+        margin-top: 8px;
+        padding-top: 8px;
+        gap: 8px
+    }
+
+    .social-links a {
+        width: 26px;
+        height: 26px;
+        font-size: 14px
     }
 
     .topbar {
-        padding: 0 15px
+        padding: 0 12px;
+        height: 56px;
+        gap: 10px
+    }
+
+    .menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center
     }
 
     .mobile-title {
-        display: block
+        display: block;
+        font-size: 14px;
+        margin: 0
     }
 
     .search {
-        width: 100%
+        width: calc(100% - 110px);
+        padding: 0 8px;
+        font-size: 12px;
+        flex: 1
+    }
+
+    .search input {
+        padding: 8px;
+        font-size: 12px
+    }
+
+    .icon-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 16px
     }
 
     .view {
-        padding: 20px 15px
+        padding: 16px 12px
     }
 
     .hero {
-        display: block
+        display: block;
+        margin-bottom: 20px
     }
 
     .hero h1 {
-        font-size: 28px
+        font-size: 24px;
+        margin: 6px 0
+    }
+
+    .hero p {
+        font-size: 13px;
+        line-height: 1.5
     }
 
     .grid,
     .stats {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
+        gap: 10px
+    }
+
+    .stat,
+    .card {
+        padding: 14px
+    }
+
+    .stat .num {
+        font-size: 22px
     }
 
     .problem {
-        grid-template-columns: 45px 1fr
+        grid-template-columns: 40px 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .numcode {
+        font-size: 10px
+    }
+
+    .ptitle {
+        font-size: 13px
+    }
+
+    .pattern {
+        font-size: 11px;
+        margin-top: 3px
     }
 
     .actions {
         grid-column: 2;
-        justify-content: flex-start
+        justify-content: flex-start;
+        gap: 5px;
+        flex-wrap: wrap
     }
 
     .actions .btn {
-        flex: 1
+        flex: 1;
+        min-width: 50px;
+        padding: 6px 8px;
+        font-size: 10px
+    }
+
+    .btn {
+        padding: 6px 8px;
+        font-size: 10px
     }
 
     .toolbar .input {
         width: 100%;
-        min-width: 0
+        min-width: 0;
+        font-size: 12px;
+        padding: 8px 10px
+    }
+
+    .select,
+    .input {
+        font-size: 12px;
+        padding: 8px 10px
+    }
+
+    .decision-step {
+        padding: 16px;
+        margin: 10px 0
+    }
+
+    .decision-step h3 {
+        font-size: 15px
+    }
+
+    .decision-options {
+        grid-template-columns: 1fr;
+        gap: 8px
+    }
+
+    .choice {
+        padding: 10px;
+        font-size: 12px
+    }
+
+    .callout {
+        padding: 14px;
+        font-size: 12px
+    }
+
+    .callout h3 {
+        font-size: 14px;
+        margin: 0 0 8px
+    }
+
+    .callout li {
+        font-size: 12px;
+        margin: 5px 0
+    }
+
+    .section-head {
+        margin: 20px 0 10px
+    }
+
+    .section-head h2 {
+        font-size: 16px
+    }
+
+    .pattern-panel {
+        grid-template-columns: 1fr;
+        gap: 12px
+    }
+
+    .toolbar {
+        gap: 6px;
+        margin: 15px 0
+    }
+
+    .chips {
+        gap: 5px;
+        padding: 3px
+    }
+
+    .chip {
+        padding: 4px 8px;
+        font-size: 10px
+    }
+
+    .star {
+        font-size: 15px
+    }
+
+    .diff {
+        font-size: 9px;
+        padding: 4px 6px
+    }
+}
+
+@media(max-width:480px) {
+    .sidebar .nav {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .sidebar .nav span {
+        display: inline;
+        margin-left: 10px
+    }
+
+    .topbar {
+        padding: 0 8px;
+        height: 52px
+    }
+
+    .mobile-title {
+        font-size: 13px
+    }
+
+    .search {
+        width: calc(100% - 45px)
+    }
+
+    .search span {
+        display: none
+    }
+
+    .icon-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px
+    }
+
+    .view {
+        padding: 12px 8px
+    }
+
+    .hero h1 {
+        font-size: 20px
+    }
+
+    .hero p {
+        font-size: 12px
+    }
+
+    .stat,
+    .card {
+        padding: 12px
+    }
+
+    .stat .num {
+        font-size: 18px
+    }
+
+    .problem {
+        grid-template-columns: 35px 1fr;
+        gap: 8px;
+        padding: 10px
+    }
+
+    .numcode {
+        font-size: 9px
+    }
+
+    .ptitle {
+        font-size: 12px
+    }
+
+    .actions .btn {
+        font-size: 9px;
+        padding: 5px 6px
+    }
+
+    .callout {
+        padding: 12px;
+        font-size: 11px
+    }
+
+    .decision-step {
+        padding: 12px;
+        margin: 8px 0
+    }
+
+    .section-head h2 {
+        font-size: 14px
+    }
+
+    .toolbar {
+        gap: 4px;
+        margin: 10px 0
+    }
+
+    .select,
+    .input {
+        font-size: 11px;
+        padding: 6px 8px;
+        min-width: 100px
     }
 }
 
@@ -681,6 +1031,11 @@ body.dark .topbar {
 }
 
 body.dark .icon-btn {
+    background: var(--text);
+    color: var(--bg)
+}
+
+body.dark .menu-btn {
     background: var(--text);
     color: var(--bg)
 }

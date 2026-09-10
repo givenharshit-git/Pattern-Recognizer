@@ -104,5 +104,32 @@ function toggleBookmark(id,title){
 }
 $('#globalSearch').addEventListener('input',()=>{if(!$('#problems').classList.contains('active'))nav('problems');renderProblems()});
 $('#themeBtn').addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';document.body.classList.toggle('dark',state.theme==='dark');save()});
+
+// Mobile menu toggle
+const menuBtn = $('#menuBtn');
+const sidebar = $('aside.sidebar');
+if(menuBtn && sidebar) {
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+    document.body.classList.toggle('menu-open');
+  });
+  
+  // Close sidebar when clicking on nav items
+  $$('.sidebar .nav').forEach(nav => {
+    nav.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      document.body.classList.remove('menu-open');
+    });
+  });
+  
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if(!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+      sidebar.classList.remove('active');
+      document.body.classList.remove('menu-open');
+    }
+  });
+}
+
 if(state.theme==='dark'){document.body.classList.add('dark');};
 renderTechNav();renderDashboard();
