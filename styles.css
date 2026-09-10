@@ -42,7 +42,9 @@ body.menu-open {
     padding: 22px 14px;
     position: fixed;
     inset: 0 auto 0 0;
-    overflow: auto
+    overflow: auto;
+    display: flex;
+    flex-direction: column
 }
 
 .brand {
@@ -127,11 +129,13 @@ body.menu-open {
 .sidebar-foot {
     position: sticky;
     bottom: 0;
-    background: linear-gradient(transparent, #10111a 20%);
-    padding: 30px 10px 5px;
+    background: #10111a;
+    padding: 20px 10px 15px;
     color: #c5c8d2;
     font-size: 11px;
-    line-height: 1.6
+    line-height: 1.6;
+    border-top: 1px solid #2a2f3f;
+    margin-top: auto
 }
 
 .sidebar-foot span {
@@ -725,7 +729,7 @@ body.menu-open {
         display: block;
         position: sticky;
         bottom: 0;
-        background: linear-gradient(transparent, #10111a 20%);
+        background: #10111a;
         padding: 15px 10px 5px;
         border-top: 1px solid #2a2f3f;
         margin-top: 20px
