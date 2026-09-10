@@ -134,6 +134,34 @@ body {
     color: #707486
 }
 
+.social-links {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #2a2f3f;
+}
+
+.social-links a {
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: #1b1d29;
+    transition: .15s;
+    color: #c5c8d2;
+}
+
+.social-links a:hover {
+    background: #252a38;
+    transform: translateY(-2px);
+}
+
 .main {
     margin-left: 245px;
     flex: 1;
@@ -182,7 +210,8 @@ body {
 
 .icon-btn {
     border: 1px solid var(--line);
-    background: var(--accent);
+    background: var(--text);
+    color: var(--bg);
     border-radius: 9px;
     width: 37px;
     height: 37px;
@@ -649,6 +678,11 @@ body.dark {
 
 body.dark .topbar {
     background: rgba(13, 14, 18, .98)
+}
+
+body.dark .icon-btn {
+    background: var(--text);
+    color: var(--bg)
 }
 
 body.dark .search {
