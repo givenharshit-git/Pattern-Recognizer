@@ -143,8 +143,7 @@ body {
 .topbar {
     height: 66px;
     border-bottom: 1px solid var(--line);
-    background: rgba(255, 255, 255, .86);
-    backdrop-filter: blur(14px);
+    background: rgba(255, 255, 255, .95);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -157,7 +156,7 @@ body {
 
 .search {
     width: min(530px, 60%);
-    background: var(--panel2);
+    background: #fff;
     border: 1px solid transparent;
     border-radius: 10px;
     display: flex;
@@ -168,7 +167,7 @@ body {
 
 .search:focus-within {
     border-color: #c7c4ff;
-    background: #1a1d27
+    background: #fff;
 }
 
 .search input {
@@ -649,7 +648,15 @@ body.dark {
 }
 
 body.dark .topbar {
-    background: rgba(19, 21, 29, .88)
+    background: rgba(13, 14, 18, .98)
+}
+
+body.dark .search {
+    background: #000
+}
+
+body.dark .search:focus-within {
+    background: #000
 }
 
 body.dark .callout {
