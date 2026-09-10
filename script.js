@@ -1,0 +1,82 @@
+const D=window.PATTERN_DATA;
+const state=JSON.parse(localStorage.getItem('algopattern-state')||'{"solved":[],"bookmarked":[],"theme":"light"}');
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const techniques=D.techniques;
+const meta=t=>D.metadata[t]||{summary:"",signals:[],complexity:"See individual problems"};
+
+function save(){localStorage.setItem('algopattern-state',JSON.stringify(state));}
+function problemsFor(t){return D.problems.filter(p=>p.technique===t)}
+function pct(t){let a=problemsFor(t),s=a.filter(p=>state.solved.includes(key(p))).length;return a.length?Math.round(s/a.length*100):0}
+function key(p){return p.id+'|'+p.title}
+function difficultyBadge(p){return `<span class="diff ${p.difficulty}">${p.difficulty}</span>`}
+
+function renderTechNav(){
+  $('#techNav').innerHTML=techniques.map(t=>`<div class="tech-link" onclick="openTechnique('${esc(t).replaceAll("'","&#39;")}')">${esc(t.replace(/ &.*$/,''))}</div>`).join('');
+}
+function nav(view){
+  $$('.nav').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
+  $$('.view').forEach(x=>x.classList.toggle('active',x.id===view));
+}
+$$('.nav').forEach(b=>b.addEventListener('click',()=>{nav(b.dataset.view); renderView(b.dataset.view)}));
+
+function renderDashboard(){
+ const total=D.problems.length, solved=D.problems.filter(p=>state.solved.includes(key(p))).length;
+ const easy=D.problems.filter(p=>p.difficulty==='Easy').length, med=D.problems.filter(p=>p.difficulty==='Medium').length, hard=D.problems.filter(p=>p.difficulty==='Hard').length;
+ $('#dashboard').innerHTML=`
+ <div class="hero"><div><div class="eyebrow">PATTERN RECOGNITION</div><h1>Think in patterns.<br>Then solve the problem.</h1><p>A focused practice lab built from your pattern-recognition guide. Learn what a problem is trying to tell you before reaching for code.</p></div></div>
+ <div class="stats"><div class="stat"><div class="num">${total}</div><small>Problems in guide</small></div><div class="stat"><div class="num">${solved}</div><small>Solved</small></div><div class="stat"><div class="num">${state.bookmarked.length}</div><small>Bookmarked</small></div><div class="stat"><div class="num">${total?Math.round(solved/total*100):0}%</div><small>Overall progress</small></div></div>
+ <div class="section-head"><h2>Choose a technique</h2><span class="muted">${easy} Easy · ${med} Medium · ${hard} Hard</span></div>
+ <div class="grid">${techniques.map(t=>`<div class="card tech-card" onclick="openTechnique('${esc(t).replaceAll("'","&#39;")}')"><div class="eyebrow">${esc(t)}</div><h3>${problemsFor(t).length} problems</h3><div class="muted">${esc(meta(t).summary)}</div><div class="bar"><i style="width:${pct(t)}%"></i></div><small class="muted">${pct(t)}% complete</small></div>`).join('')}</div>`;
+}
+function renderPatterns(){
+ $('#patterns').innerHTML=`<div class="hero"><div><div class="eyebrow">PATTERN LIBRARY</div><h1>How do I recognize it?</h1><p>Start with the signals you see in a problem. Then connect them to a technique and its practice set.</p></div></div>
+ <div class="grid">${techniques.map(t=>{let m=meta(t);return `<div class="card"><div class="eyebrow">${esc(t)}</div><h3>${esc(m.summary)}</h3><div class="chips">${(m.signals||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div><div class="section-head"><b>Complexity</b></div><div class="muted">${esc(m.complexity)}</div><br><button class="btn" onclick="openTechnique('${esc(t).replaceAll("'","&#39;")}')">Explore problems →</button></div>`}).join('')}</div>`;
+}
+function problemCard(p){
+ const solved=state.solved.includes(key(p)), bm=state.bookmarked.includes(key(p));
+ return `<article class="problem ${solved?'solved':''}">
+   <div class="numcode">#${p.id}</div>
+   <div><div class="ptitle">${esc(p.title)}</div><div class="pattern">${esc(p.pattern)}</div><div class="chips"><span class="chip">${esc(p.technique)}</span></div></div>
+   <div class="actions">${difficultyBadge(p)}<button class="star ${bm?'on':''}" title="Bookmark" onclick="toggleBookmark(${p.id},${JSON.stringify(p.title)})">★</button><input class="check" type="checkbox" ${solved?'checked':''} title="Mark solved" onchange="toggleSolved(${p.id},${JSON.stringify(p.title)})"><a class="btn" target="_blank" rel="noopener" href="${p.link}">Solve ↗</a></div>
+ </article>`;
+}
+function renderProblems(){
+ const q=$('#globalSearch').value.trim().toLowerCase();
+ let list=D.problems.filter(p=>!q || [p.title,p.pattern,p.technique,String(p.id),p.difficulty].some(x=>String(x).toLowerCase().includes(q)));
+ $('#problems').innerHTML=`<div class="hero"><div><div class="eyebrow">PRACTICE</div><h1>Problem set</h1><p>Search by title, number, difficulty, technique or recognition pattern.</p></div></div>
+ <div class="toolbar"><select class="select" id="diffFilter"><option value="">All difficulties</option><option>Easy</option><option>Medium</option><option>Hard</option></select><select class="select" id="techFilter"><option value="">All techniques</option>${techniques.map(t=>`<option>${esc(t)}</option>`).join('')}</select><select class="select" id="statusFilter"><option value="">All status</option><option value="unsolved">Unsolved</option><option value="solved">Solved</option><option value="bookmarked">Bookmarked</option></select></div>
+ <div id="problemList" class="problem-list"></div>`;
+ const draw=()=>{let d=$('#diffFilter').value,t=$('#techFilter').value,s=$('#statusFilter').value;let a=list.filter(p=>(!d||p.difficulty===d)&&(!t||p.technique===t)&&(!s||(s==='solved'&&state.solved.includes(key(p)))||(s==='unsolved'&&!state.solved.includes(key(p)))||(s==='bookmarked'&&state.bookmarked.includes(key(p)))));$('#problemList').innerHTML=a.length?a.map(problemCard).join(''):`<div class="empty">No problems match these filters.</div>`};
+ ['diffFilter','techFilter','statusFilter'].forEach(id=>$('#'+id).addEventListener('change',draw)); draw();
+}
+function renderDecision(){
+ $('#decision').innerHTML=`<div class="hero"><div><div class="eyebrow">DECISION GUIDE</div><h1>What should I reach for?</h1><p>A compact route through the techniques in the guide. Use the visible clue, then inspect the matching practice set.</p></div></div><div class="decision">
+ <div class="decision-step"><h3>1 · What is the input telling you?</h3><div class="decision-options">
+ <button class="choice" onclick="decision('sorted')">The array is sorted / nearly sorted</button>
+ <button class="choice" onclick="decision('frequency')">I need counts, complements, or fast lookup</button>
+ <button class="choice" onclick="decision('range')">I have many range queries / cumulative values</button>
+ <button class="choice" onclick="decision('graph')">There are nodes, edges, or connectivity</button>
+ <button class="choice" onclick="decision('choice')">I repeatedly choose min/max or Top K</button>
+ <button class="choice" onclick="decision('opt')">It asks for min/max/count with repeated subproblems</button>
+ </div></div><div id="decisionResult"></div></div>`;
+}
+function decision(x){
+ const map={sorted:['BINARY SEARCH','TWO POINTERS','SORTING'],frequency:['HASH TABLES'],range:['PREFIX SUM','FENWICK TREE','SEGMENT TREE & LAZY PROPAGATION'],graph:['GRAPHS - BFS & DFS','DISJOINT SET UNION','DIJKSTRA & WEIGHTED GRAPHS'],choice:['HEAPS / PRIORITY QUEUES','SORTING'],opt:['DYNAMIC PROGRAMMING']};
+ const a=map[x]||[];
+ $('#decisionResult').innerHTML=`<div class="card"><h3>Investigate these techniques</h3><div class="chips">${a.map(t=>`<button class="btn" onclick="openTechnique('${esc(t).replaceAll("'","&#39;")}')">${esc(t)}</button>`).join(' ')}</div></div>`;
+}
+function renderProgress(){
+ const total=D.problems.length, solved=D.problems.filter(p=>state.solved.includes(key(p))).length;
+ $('#progress').innerHTML=`<div class="hero"><div><div class="eyebrow">TRACKING</div><h1>Your progress</h1><p>Progress is stored locally in this browser. No login or backend required.</p></div></div>
+ <div class="card"><h3>${solved} / ${total} solved</h3><div class="bar"><i style="width:${total?solved/total*100:0}%"></i></div><div class="muted">${total?Math.round(solved/total*100):0}% complete</div></div>
+ <div class="section-head"><h2>By technique</h2></div><div class="grid">${techniques.map(t=>`<div class="card"><b>${esc(t)}</b><div class="bar"><i style="width:${pct(t)}%"></i></div><small class="muted">${problemsFor(t).filter(p=>state.solved.includes(key(p))).length}/${problemsFor(t).length} solved</small></div>`).join('')}</div>`;
+}
+function renderView(v){({dashboard:renderDashboard,patterns:renderPatterns,problems:renderProblems,decision:renderDecision,progress:renderProgress}[v]||renderDashboard)()}
+function openTechnique(t){nav('problems');renderProblems();setTimeout(()=>{let s=$('#techFilter');if(s){s.value=t;s.dispatchEvent(new Event('change'))}},0)}
+function toggleSolved(id,title){let k=id+'|'+title;state.solved=state.solved.includes(k)?state.solved.filter(x=>x!==k):[...state.solved,k];save();renderDashboard();renderProgress();if($('#problems').classList.contains('active'))renderProblems()}
+function toggleBookmark(id,title){let k=id+'|'+title;state.bookmarked=state.bookmarked.includes(k)?state.bookmarked.filter(x=>x!==k):[...state.bookmarked,k];save();renderDashboard();if($('#problems').classList.contains('active'))renderProblems()}
+$('#globalSearch').addEventListener('input',()=>{if(!$('#problems').classList.contains('active'))nav('problems');renderProblems()});
+$('#themeBtn').addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';document.body.classList.toggle('dark',state.theme==='dark');save()});
+if(state.theme==='dark'){document.body.classList.add('dark');};
+renderTechNav();renderDashboard();
